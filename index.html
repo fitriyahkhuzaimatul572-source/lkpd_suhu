@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LKPD Interaktif IPA - Suhu | MTsN 1 Kota Malang</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- html2canvas and jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: {
+                            50: '#fffdfa',
+                            100: '#fef9ed',
+                            200: '#fdf0d5',
+                            300: '#fbe2b3',
+                        },
+                        brown: {
+                            100: '#e8d8c8',
+                            200: '#d0b49f',
+                            600: '#965a38',
+                            700: '#7a4325',
+                            800: '#5c3118',
+                            900: '#3e1f0e',
+                        },
+                        amber: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #fdf0d5; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
+        
+        /* Print/PDF friendly fixes */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-cream-100 via-cream-200 to-brown-100 text-brown-900 min-h-full flex flex-col custom-scrollbar py-6 px-3 sm:px-6">
+
+    <div id="lkpd-content" class="max-w-4xl mx-auto w-full bg-cream-50 rounded-3xl border-2 border-brown-200 shadow-2xl p-6 sm:p-10 space-y-8">
+
+        <!-- HEADER LKPD -->
+        <header class="border-b-4 border-amber-500 pb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-brown-600 flex items-center justify-center text-white shadow-lg text-3xl shrink-0">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <div>
+                        <span class="inline-block px-3 py-1 bg-amber-500 text-white text-xs font-extrabold rounded-full mb-1 uppercase tracking-wider">
+                            LKPD Interaktif IPA
+                        </span>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-brown-900 tracking-tight">
+                            Eksplorasi Konsep Suhu & Konversi Skala
+                        </h1>
+                        <p class="text-xs sm:text-sm font-semibold text-brown-700 mt-1">
+                            Kelas VII MTs/SMP • Kurikulum Merdeka
+                        </p>
+                    </div>
+                </div>
+                <div class="bg-cream-200 border border-brown-200 p-3.5 rounded-2xl text-xs text-brown-800 text-center sm:text-right shadow-sm shrink-0">
+                    <p class="font-bold text-brown-900">Penyusun:</p>
+                    <p class="font-extrabold text-amber-600">Khuzaimatul Fitriyah, S.Si., M.Si.</p>
+                    <p class="text-[11px] text-brown-700">Guru IPA MTsN 1 Kota Malang</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- IDENTITAS KELOMPOK -->
+        <section class="bg-cream-100 border-2 border-amber-500/40 rounded-2xl p-5 shadow-sm space-y-4">
+            <h2 class="text-lg font-bold text-brown-900 flex items-center gap-2 border-b border-brown-200 pb-2">
+                <i class="fa-solid fa-users text-amber-600"></i> A. Identitas Peserta Didik / Kelompok
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-brown-800 mb-1">Nama Kelompok:</label>
+                    <input type="text" id="group-name" placeholder="Contoh: Kelompok 1 (Newton)" class="w-full px-3.5 py-2 rounded-xl bg-white border border-brown-200 text-brown-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-brown-800 mb-1">Kelas / No. Presensi:</label>
+                    <input type="text" id="group-class" placeholder="Contoh: VII-A / 01, 05, 12, 18" class="w-full px-3.5 py-2 rounded-xl bg-white border border-brown-200 text-brown-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-brown-800 mb-1">Anggota Kelompok:</label>
+                <textarea id="group-members" rows="2" placeholder="1. Nama Siswa 1&#10;2. Nama Siswa 2&#10;3. Nama Siswa 3&#10;4. Nama Siswa 4" class="w-full px-3.5 py-2 rounded-xl bg-white border border-brown-200 text-brown-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm custom-scrollbar"></textarea>
+            </div>
+        </section>
+
+        <!-- TUJUAN PEMBELAJARAN -->
+        <section class="space-y-3">
+            <h2 class="text-lg font-bold text-brown-900 flex items-center gap-2">
+                <i class="fa-solid fa-bullseye text-amber-600"></i> B. Tujuan Kegiatan
+            </h2>
+            <div class="bg-cream-100 border border-brown-200 rounded-2xl p-4 text-xs sm:text-sm text-brown-800 space-y-2">
+                <p class="flex items-start gap-2">
+                    <span class="text-amber-600 font-bold">•</span>
+                    <span>Mengidentifikasi derajat panas dan dingin benda menggunakan skala suhu secara objektif.</span>
+                </p>
+                <p class="flex items-start gap-2">
+                    <span class="text-amber-600 font-bold">•</span>
+                    <span>Menganalisis perbandingan konversi skala Celcius, Reamur, Fahrenheit, dan Kelvin.</span>
+                </p>
+                <p class="flex items-start gap-2">
+                    <span class="text-amber-600 font-bold">•</span>
+                    <span>Menyelesaikan masalah kontekstual kehidupan sehari-hari terkait perubahan suhu (HOTS).</span>
+                </p>
+            </div>
+        </section>
+
+        <!-- KEGIATAN 1: SIMULASI VIRTUAL -->
+        <section class="space-y-4">
+            <h2 class="text-lg font-bold text-brown-900 flex items-center gap-2">
+                <i class="fa-solid fa-flask-vial text-amber-600"></i> C. Kegiatan 1: Pengamatan Simulasi Konversi Suhu
+            </h2>
+            <p class="text-xs sm:text-sm text-brown-800">
+                Gunakan pengatur suhu di bawah ini untuk mensimulasikan pengukuran suhu air, lalu amati perubahan angka konversi pada termometer Celcius, Reamur, Fahrenheit, dan Kelvin.
+            </p>
+
+            <div class="bg-gradient-to-br from-cream-200 to-brown-100 border-2 border-brown-200 p-5 rounded-2xl space-y-5">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="w-full sm:w-2/3 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-bold text-brown-900">Atur Suhu Air (°C):</label>
+                            <span id="slider-val-display" class="font-extrabold text-amber-600 text-lg bg-white px-3 py-1 rounded-xl border border-brown-200">25 °C</span>
+                        </div>
+                        <input type="range" id="sim-slider" min="0" max="100" value="25" oninput="runSim(this.value)" class="w-full accent-amber-600 cursor-pointer">
+                        <div class="flex justify-between text-[11px] font-semibold text-brown-700">
+                            <span>0 °C (Es Melebur)</span>
+                            <span>50 °C</span>
+                            <span>100 °C (Air Mendidih)</span>
+                        </div>
+                    </div>
+
+                    <!-- Beaker Visual -->
+                    <div class="w-28 h-32 relative flex items-center justify-center shrink-0">
+                        <svg class="w-full h-full drop-shadow-md" viewBox="0 0 100 120">
+                            <path d="M20,10 L80,10 L85,110 C85,115 80,118 75,118 L25,118 C20,118 15,115 15,110 Z" fill="none" stroke="#7a4325" stroke-width="4" stroke-linejoin="round"/>
+                            <path id="beaker-fill" d="M17,65 L83,65 L84.5,110 C84.5,114 81,116 75,116 L25,116 C19,116 15.5,114 15.5,110 Z" fill="#f59e0b" opacity="0.85"/>
+                            <rect x="15" y="6" width="70" height="6" rx="3" fill="#7a4325"/>
+                        </svg>
+                        <span id="beaker-label" class="absolute font-extrabold text-white text-sm drop-shadow">25°C</span>
+                    </div>
+                </div>
+
+                <!-- Live Results Preview Cards -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div class="bg-white p-3 rounded-xl border border-brown-200 shadow-sm">
+                        <div class="text-[11px] font-bold text-brown-700">Celcius (°C)</div>
+                        <div id="res-c" class="text-base font-extrabold text-amber-600 mt-1">25 °C</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-brown-200 shadow-sm">
+                        <div class="text-[11px] font-bold text-brown-700">Reamur (°R)</div>
+                        <div id="res-r" class="text-base font-extrabold text-amber-600 mt-1">20.0 °R</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-brown-200 shadow-sm">
+                        <div class="text-[11px] font-bold text-brown-700">Fahrenheit (°F)</div>
+                        <div id="res-f" class="text-base font-extrabold text-amber-600 mt-1">77.0 °F</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-brown-200 shadow-sm">
+                        <div class="text-[11px] font-bold text-brown-700">Kelvin (K)</div>
+                        <div id="res-k" class="text-base font-extrabold text-amber-600 mt-1">298.15 K</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TABEL HASIL PENGAMATAN -->
+        <section class="space-y-4">
+            <h2 class="text-lg font-bold text-brown-900 flex items-center gap-2">
+                <i class="fa-solid fa-table text-amber-600"></i> D. Tabel Hasil Pengamatan Suhu
+            </h2>
+            <p class="text-xs sm:text-sm text-brown-800">
+                Isilah data hasil eksperimen berdasarkan simulasi atau perhitungan kelompok kalian:
+            </p>
+
+            <div class="overflow-x-auto rounded-2xl border border-brown-200 shadow-sm">
+                <table class="w-full text-xs sm:text-sm text-left border-collapse">
+                    <thead class="bg-amber-600 text-white font-bold">
+                        <tr>
+                            <th class="p-3 border-b border-brown-200 text-center">No</th>
+                            <th class="p-3 border-b border-brown-200">Kondisi Air</th>
+                            <th class="p-3 border-b border-brown-200 text-center">Celcius (°C)</th>
+                            <th class="p-3 border-b border-brown-200 text-center">Reamur (°R)</th>
+                            <th class="p-3 border-b border-brown-200 text-center">Fahrenheit (°F)</th>
+                            <th class="p-3 border-b border-brown-200 text-center">Kelvin (K)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-cream-200 text-brown-900">
+                        <tr>
+                            <td class="p-2.5 text-center font-bold">1</td>
+                            <td class="p-2.5 font-medium">Es Melebur (Titik Beku Air)</td>
+                            <td class="p-2.5"><input type="text" value="0" class="w-full text-center bg-cream-100 rounded border border-brown-200 p-1 font-semibold"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                        </tr>
+                        <tr>
+                            <td class="p-2.5 text-center font-bold">2</td>
+                            <td class="p-2.5 font-medium">Suhu Kamar Normal</td>
+                            <td class="p-2.5"><input type="text" value="25" class="w-full text-center bg-cream-100 rounded border border-brown-200 p-1 font-semibold"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                        </tr>
+                        <tr>
+                            <td class="p-2.5 text-center font-bold">3</td>
+                            <td class="p-2.5 font-medium">Air Hangat Suam Kuku</td>
+                            <td class="p-2.5"><input type="text" value="50" class="w-full text-center bg-cream-100 rounded border border-brown-200 p-1 font-semibold"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                        </tr>
+                        <tr>
+                            <td class="p-2.5 text-center font-bold">4</td>
+                            <td class="p-2.5 font-medium">Air Mendidih (Titik Didih)</td>
+                            <td class="p-2.5"><input type="text" value="100" class="w-full text-center bg-cream-100 rounded border border-brown-200 p-1 font-semibold"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                            <td class="p-2.5"><input type="text" placeholder="..." class="w-full text-center bg-cream-50 rounded border border-brown-200 p-1"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- PERTANYAAN ANALISIS & HOTS -->
+        <section class="space-y-4">
+            <h2 class="text-lg font-bold text-brown-900 flex items-center gap-2">
+                <i class="fa-solid fa-brain text-amber-600"></i> E. Pertanyaan Diskusi & Diskusi HOTS
+            </h2>
+
+            <div class="space-y-4">
+                <div class="bg-cream-100 border border-brown-200 p-4 rounded-2xl space-y-2">
+                    <p class="text-xs sm:text-sm font-bold text-brown-900">
+                        1. Berdasarkan pengamatan, bagaimanakah perbandingan skala antara Celcius, Reamur, Fahrenheit (dikurangi 32), dan Kelvin (dikurangi 273)? Tuliskan rumus dasarnya!
+                    </p>
+                    <textarea id="q1-ans" rows="3" placeholder="Jawaban kelompok kalian..." class="w-full p-3 rounded-xl bg-white border border-brown-200 text-xs sm:text-sm text-brown-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm custom-scrollbar"></textarea>
+                </div>
+
+                <div class="bg-cream-100 border border-brown-200 p-4 rounded-2xl space-y-2">
+                    <p class="text-xs sm:text-sm font-bold text-brown-900">
+                        2. [Soal HOTS] Seorang wisatawan dari Amerika Serikat mengukur suhu tubuhnya menggunakan termometer Fahrenheit dan menunjukkan angka 100.4 °F. Menurut kalian, apakah wisatawan tersebut mengalami demam jika diukur dalam standar skala Celcius di Indonesia? Jelaskan perhitungan analisis kalian!
+                    </p>
+                    <textarea id="q2-ans" rows="4" placeholder="Tuliskan analisis perhitungan dan kesimpulan kalian di sini..." class="w-full p-3 rounded-xl bg-white border border-brown-200 text-xs sm:text-sm text-brown-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm custom-scrollbar"></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- KESIMPULAN -->
+        <section class="space-y-3">
+            <h2 class="text-lg font-bold text-brown-900 flex items-center gap-2">
+                <i class="fa-solid fa-lightbulb text-amber-600"></i> F. Kesimpulan Kelompok
+            </h2>
+            <p class="text-xs sm:text-sm text-brown-800">
+                Buatlah kesimpulan ringkas dari seluruh kegiatan eksperimen dan analisis yang telah kelompok kalian lakukan:
+            </p>
+            <textarea id="group-conclusion" rows="4" placeholder="Tuliskan kesimpulan akhir kelompok kalian..." class="w-full p-3.5 rounded-2xl bg-white border-2 border-amber-500/30 text-xs sm:text-sm text-brown-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm custom-scrollbar"></textarea>
+        </section>
+
+        <!-- FOOTER & ACTION BUTTONS -->
+        <footer class="pt-6 border-t-2 border-brown-200 flex flex-col sm:flex-row items-center justify-between gap-4 no-print">
+            <div class="text-xs text-brown-700 text-center sm:text-left">
+                <p>© 2026 MTsN 1 Kota Malang • IPA Kelas VII</p>
+                <p class="italic">Pengembang: Khuzaimatul Fitriyah, S.Si., M.Si.</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-brown-200 hover:bg-brown-600 hover:text-white text-brown-900 font-bold text-xs sm:text-sm transition flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-print"></i> Cetak Halaman
+                </button>
+                <button onclick="downloadPDF()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-brown-600 hover:from-amber-600 hover:to-brown-700 text-white font-bold text-xs sm:text-sm transition flex items-center gap-2 shadow-lg transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-file-pdf"></i> Unduh Berkas PDF
+                </button>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        function runSim(val) {
+            const c = parseFloat(val);
+            document.getElementById('slider-val-display').innerText = c + " °C";
+            document.getElementById('beaker-label').innerText = c + "°C";
+
+            const r = (c * 0.8).toFixed(1);
+            const f = ((c * 9/5) + 32).toFixed(1);
+            const k = (c + 273.15).toFixed(2);
+
+            document.getElementById('res-c').innerText = c + " °C";
+            document.getElementById('res-r').innerText = r + " °R";
+            document.getElementById('res-f').innerText = f + " °F";
+            document.getElementById('res-k').innerText = k + " K";
+
+            // Visual liquid fill adaptation
+            const fillPath = document.getElementById('beaker-fill');
+            const hFactor = 65 + (100 - c) * 0.45;
+            fillPath.setAttribute('d', `M17,${hFactor} L83,${hFactor} L84.5,110 C84.5,114 81,116 75,116 L25,116 C19,116 15.5,114 15.5,110 Z`);
+            
+            if (c <= 0) fillPath.setAttribute('fill', '#0284c7');
+            else if (c >= 100) fillPath.setAttribute('fill', '#dc2626');
+            else fillPath.setAttribute('fill', '#f59e0b');
+        }
+
+        async function downloadPDF() {
+            const groupName = document.getElementById('group-name').value.trim() || 'Kelompok_Suhu';
+            const element = document.getElementById('lkpd-content');
+            
+            // Show loading message box
+            const btn = event.currentTarget;
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses PDF...`;
+            btn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#fffdfa'
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = pdfWidth - 20; // 10mm margins
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                let heightLeft = imgHeight;
+                let position = 10;
+
+                pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+                heightLeft -= (pdfHeight - 20);
+
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight + 10;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= (pdfHeight - 20);
+                }
+
+                pdf.save(`LKPD_Suhu_${groupName.replace(/\s+/g, '_')}.pdf`);
+            } catch (err) {
+                console.error(err);
+                alert("Gagal mengunduh PDF, silakan gunakan tombol 'Cetak Halaman' -> 'Save as PDF'.");
+            } finally {
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
